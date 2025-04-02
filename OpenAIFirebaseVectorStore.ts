@@ -12,7 +12,7 @@ import {
   Firestore,
   DocumentReference,
 } from 'firebase/firestore';
-import { FirebaseConfig } from './firebaseConfig.js';
+import { FirebaseConfig } from './firebaseConfig';
 
 // Define interfaces for document structure
 export interface Document {

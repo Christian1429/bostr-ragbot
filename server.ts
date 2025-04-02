@@ -8,8 +8,8 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import { PDFExtract } from 'pdf.js-extract';
-import { OpenAIFirebaseVectorStore } from './OpenAIFirebaseVectorStore.js';
-import { firebaseConfig } from './firebaseConfig.js';
+import { OpenAIFirebaseVectorStore } from './OpenAIFirebaseVectorStore';
+import { firebaseConfig } from './firebaseConfig';
 import {
   getFirestore,
   collection,
@@ -113,7 +113,7 @@ let vectorStore: OpenAIFirebaseVectorStore | undefined;
 /**
  * Generate response from OpenAI
  */
-async function generateResponse(prompt: string): Promise<string> {
+export async function generateResponse(prompt: string): Promise<string> {
   try {
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o', // Can be adjusted to another model
@@ -131,7 +131,7 @@ async function generateResponse(prompt: string): Promise<string> {
 /**
  * Create prompt template for question-answering
  */
-async function createPromptTemplate(
+export async function createPromptTemplate(
   context: string,
   query: string
 ): Promise<string> {
@@ -199,7 +199,7 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
 /**
  * Initialize or get vectorStore
  */
-async function getVectorStore(): Promise<OpenAIFirebaseVectorStore> {
+export async function getVectorStore(): Promise<OpenAIFirebaseVectorStore> {
   if (!vectorStore) {
     console.log('Initierar ny OpenAIFirebaseVectorStore');
     vectorStore = new OpenAIFirebaseVectorStore(firebaseConfig, embeddings);
