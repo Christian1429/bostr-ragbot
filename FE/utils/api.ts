@@ -79,14 +79,14 @@ export async function handleTextLoad(text: string, type: 'pdf' | 'url' | 'text')
   }
 }
 
-export async function handleChat(question: string) {
-  try {
-    const result = await chat(question);
-    console.log(result.answer);
-  } catch (error) {
-    console.error('Error chatting:', error);
-  }
-}
+// export async function handleChat(question: string) {
+//   try {
+//     const result = await chat(question);
+//     console.log(result.answer);
+//   } catch (error) {
+//     console.error('Error chatting:', error);
+//   }
+// }
 
 export async function handleMigration() {
   try {

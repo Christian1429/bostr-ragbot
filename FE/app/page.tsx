@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import {
-  handleChat,
   handleFileUpload,
   handleUrlLoad,
   handleTextLoad,
@@ -77,74 +76,98 @@ function ApiComponent() {
   };
 
   return (
-    <div className="p-4 space-y-4">
-      {/* Chat */}
-      <div className="border p-4 rounded-md shadow-md">
-        <input
-          type="text"
+    <div>
+      <h1 className="text-4xl font-extrabold text-center text-blue-600 my-8">
+        RAGBOT
+      </h1>
+      <div className="p-6 space-y-6 max-w-lg mx-auto">
+        <textarea
+          className="w-full h-48 border rounded-lg p-4 shadow-md resize-none focus:outline-none focus:ring focus:ring-blue-200"
           value={chatQuestion}
           onChange={(e) => setChatQuestion(e.target.value)}
-          placeholder="Enter your question"
+          placeholder="Skriv in din fråga..."
         />
         <button
-          className="bg-blue-500 text-white p-2 rounded-md mt-2"
-           onClick={handleChatClick}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-blue-200"
+          onClick={handleChatClick}
         >
-          Chat
+          Skicka
         </button>
-        {chatAnswer && <p>Answer: {chatAnswer}</p>}
+        {chatAnswer && (
+          <div className="mt-4 p-4 rounded-md bg-gray-100">
+            <p className="font-semibold text-black">Svar:</p>
+            <p className="text-black">{chatAnswer}</p>
+          </div>
+        )}
       </div>
+      <div className="w-full border-b border-gray-300 py-4"></div>
+      {/* ADMIN PANEL */}
 
       {/* Migrate Vectorstore */}
-      <div className="border p-4 rounded-md shadow-md">
-        <button
-          className="bg-blue-500 text-white p-2 rounded-md mt-2"
-          onClick={handleMigrationClick}
-        >
-          Migrate Vectorstore
-        </button>
-        {migrationResult && <p>Migration Result: {migrationResult}</p>}
+      <div className="p-6 space-y-6 max-w-lg mx-auto">
+        <h1 className="text-4xl font-extrabold text-center text-blue-600 my-8">
+          Admin Panel
+        </h1>
+        <div className="space-y-4">
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-blue-200"
+            onClick={handleMigrationClick}
+          >
+            Migrera Vectorstore
+          </button>
+          {migrationResult && (
+            <div className="mt-4 p-4 rounded-md bg-gray-100">
+              <p className="font-semibold">Migration Result:</p>
+              <p>{migrationResult}</p>
+            </div>
+          )}
+        </div>
       </div>
-
       {/* File Upload */}
-      <div className="border p-4 rounded-md shadow-md">
-        <input type="file" onChange={handleFileChange} />
+      <div className="p-6 space-y-6 max-w-lg mx-auto">
+        <input
+          type="file"
+          onChange={handleFileChange}
+          className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg shadow-md p-3"
+        />
         <button
-          className="bg-blue-500 text-white p-2 rounded-md mt-2"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-blue-200"
           onClick={handleFileUploadClick}
         >
-          Upload File
+          Ladda upp fil
         </button>
       </div>
 
       {/* URL Load */}
-      <div className="border p-4 rounded-md shadow-md">
+      <div className="p-6 space-y-6 max-w-lg mx-auto">
         <input
+          className="w-full border rounded-lg p-4 shadow-md focus:outline-none focus:ring focus:ring-blue-200"
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="Enter URL"
+          placeholder="Lägg in URL..."
         />
         <button
-          className="bg-blue-500 text-white p-2 rounded-md mt-2"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-blue-200"
           onClick={handleUrlLoadClick}
         >
-          Load URL
+          Skrapa hemsida
         </button>
       </div>
 
       {/* Text Load */}
-      <div className="border p-4 rounded-md shadow-md">
+      <div className="p-6 space-y-6 max-w-lg mx-auto">
         <textarea
+          className="w-full h-48 border rounded-lg p-4 shadow-md resize-none focus:outline-none focus:ring focus:ring-blue-200"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Enter text"
+          placeholder="Skriv text..."
         />
         <button
-          className="bg-blue-500 text-white p-2 rounded-md mt-2"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-blue-200"
           onClick={handleTextLoadClick}
         >
-          Load Text
+          Skicka text
         </button>
       </div>
     </div>
