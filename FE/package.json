@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "dev:frontend": "next dev --turbopack",
-    "dev:backend": "node ../BE/server.ts",
+    "dev:backend": "cd .. && cd BE && node --loader ts-node/esm server.ts",
     "start:all": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\""
   },
   "dependencies": {

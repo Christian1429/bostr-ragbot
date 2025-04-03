@@ -78,7 +78,7 @@ function ApiComponent() {
   return (
     <div>
       <h1 className="text-4xl font-extrabold text-center text-blue-600 my-8">
-        RAGBOT
+        BOSTR-RAGBOT
       </h1>
       <div className="p-6 space-y-6 max-w-lg mx-auto">
         <textarea
