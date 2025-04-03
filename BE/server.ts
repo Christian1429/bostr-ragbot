@@ -213,7 +213,6 @@ async function addToVectorStore(content: string, sourceType: SourceType, sourceU
     throw error;
   }
 }
-
 /**
  * ROUTES
  */
