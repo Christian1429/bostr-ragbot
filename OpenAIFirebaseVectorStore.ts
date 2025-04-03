@@ -1,18 +1,7 @@
 // OpenAIFirebaseVectorStore.ts
 import { initializeApp } from 'firebase/app';
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  deleteDoc,
-  doc,
-  Firestore,
-  DocumentReference,
-} from 'firebase/firestore';
-import { FirebaseConfig } from './firebaseConfig';
+import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, Firestore, DocumentReference } from 'firebase/firestore';
+import { FirebaseConfig } from './firebaseConfig.js';
 
 // Define interfaces for document structure
 export interface Document {
@@ -69,9 +58,9 @@ export class OpenAIFirebaseVectorStore {
   async addDocuments(documents: Document[]): Promise<string[]> {
     try {
       console.log(`Adding ${documents.length} documents to vector store...`);
-
+      
       // Generate embeddings for all documents
-      const texts = documents.map((doc) => doc.pageContent);
+      const texts = documents.map(doc => doc.pageContent);
       console.log(`Generating embeddings for ${texts.length} documents...`);
       const documentEmbeddings = await this.embeddings.embedDocuments(texts);
       console.log(`Generated ${documentEmbeddings.length} embeddings.`);
@@ -82,22 +71,17 @@ export class OpenAIFirebaseVectorStore {
         embedding: documentEmbeddings[i],
         metadata: doc.metadata,
         model: this.embeddings.modelName || 'openai', // Track which model created the embedding
-        created: new Date().toISOString(),
+        created: new Date().toISOString()
       }));
 
       // Add documents to Firestore
       const addedDocs: string[] = [];
       for (const item of batch) {
-        const docRef: DocumentReference = await addDoc(
-          collection(this.db, this.collectionName),
-          item
-        );
+        const docRef: DocumentReference = await addDoc(collection(this.db, this.collectionName), item);
         addedDocs.push(docRef.id);
       }
 
-      console.log(
-        `Successfully added ${addedDocs.length} documents to vector store.`
-      );
+      console.log(`Successfully added ${addedDocs.length} documents to vector store.`);
       return addedDocs;
     } catch (error) {
       console.error('Error adding documents to vector store:', error);
@@ -114,21 +98,17 @@ export class OpenAIFirebaseVectorStore {
   async similaritySearch(query: string, k: number = 4): Promise<Document[]> {
     try {
       console.log(`Performing similarity search for query: "${query}"`);
-
+      
       // Generate embedding for the query
       console.log('Generating embedding for query...');
       const queryEmbedding = await this.embeddings.embedQuery(query);
-      console.log(
-        `Generated query embedding with ${queryEmbedding.length} dimensions`
-      );
-
+      console.log(`Generated query embedding with ${queryEmbedding.length} dimensions`);
+      
       // Get all documents from Firestore
       console.log(`Retrieving documents from ${this.collectionName}...`);
-      const querySnapshot = await getDocs(
-        collection(this.db, this.collectionName)
-      );
+      const querySnapshot = await getDocs(collection(this.db, this.collectionName));
       console.log(`Retrieved ${querySnapshot.size} documents from Firestore.`);
-
+      
       if (querySnapshot.empty) {
         console.log('No documents found in the collection.');
         return [];
@@ -138,49 +118,39 @@ export class OpenAIFirebaseVectorStore {
       const results: SearchResult[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data() as DocumentWithEmbedding;
-
+        
         // Skip documents without embeddings
         if (!data.embedding || !Array.isArray(data.embedding)) {
           console.warn(`Skipping document ${doc.id} - invalid embedding`);
           return;
         }
-
+        
         try {
-          const similarity = this.cosineSimilarity(
-            queryEmbedding,
-            data.embedding
-          );
-
+          const similarity = this.cosineSimilarity(queryEmbedding, data.embedding);
+          
           results.push({
             id: doc.id,
             pageContent: data.content,
             metadata: data.metadata || {},
-            similarity,
+            similarity
           });
         } catch (error) {
-          console.error(
-            `Error calculating similarity for document ${doc.id}:`,
-            error
-          );
+          console.error(`Error calculating similarity for document ${doc.id}:`, error);
         }
       });
-
+      
       console.log(`Calculated similarity for ${results.length} documents.`);
-
+      
       // Sort by similarity and take top k results
       const topResults = results
         .sort((a, b) => b.similarity - a.similarity)
         .slice(0, k);
-
-      console.log(
-        `Top ${topResults.length} results have similarities: ${topResults
-          .map((r) => r.similarity.toFixed(4))
-          .join(', ')}`
-      );
-
+      
+      console.log(`Top ${topResults.length} results have similarities: ${topResults.map(r => r.similarity.toFixed(4)).join(', ')}`);
+      
       return topResults.map(({ pageContent, metadata }) => ({
         pageContent,
-        metadata,
+        metadata
       }));
     } catch (error) {
       console.error('Error in similarity search:', error);
@@ -198,31 +168,27 @@ export class OpenAIFirebaseVectorStore {
     try {
       // Check if vectors have the same dimensions
       if (vectorA.length !== vectorB.length) {
-        console.warn(
-          `Vector dimension mismatch: ${vectorA.length} vs ${vectorB.length}. Using minimum length.`
-        );
+        console.warn(`Vector dimension mismatch: ${vectorA.length} vs ${vectorB.length}. Using minimum length.`);
       }
-
+      
       // Use the minimum length to ensure compatibility
       const minLength = Math.min(vectorA.length, vectorB.length);
       const a = vectorA.slice(0, minLength);
       const b = vectorB.slice(0, minLength);
-
+      
       // Calculate dot product
       const dotProduct = a.reduce((sum, val, i) => sum + val * b[i], 0);
-
+      
       // Calculate magnitudes
       const magnitudeA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
       const magnitudeB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
-
+      
       // Check for zero magnitudes to avoid division by zero
       if (magnitudeA === 0 || magnitudeB === 0) {
-        console.warn(
-          'Vector with zero magnitude found during similarity calculation'
-        );
+        console.warn('Vector with zero magnitude found during similarity calculation');
         return 0;
       }
-
+      
       // Calculate and return cosine similarity
       return dotProduct / (magnitudeA * magnitudeB);
     } catch (error) {
@@ -238,16 +204,14 @@ export class OpenAIFirebaseVectorStore {
   async clearAll(): Promise<number> {
     try {
       console.log(`Clearing all documents from ${this.collectionName}...`);
-      const querySnapshot = await getDocs(
-        collection(this.db, this.collectionName)
-      );
-
+      const querySnapshot = await getDocs(collection(this.db, this.collectionName));
+      
       let count = 0;
       for (const document of querySnapshot.docs) {
         await deleteDoc(doc(this.db, this.collectionName, document.id));
         count++;
       }
-
+      
       console.log(`Cleared ${count} documents from vector store.`);
       return count;
     } catch (error) {
@@ -263,8 +227,8 @@ export class OpenAIFirebaseVectorStore {
    */
   asRetriever(k: number = 4): Retriever {
     return {
-      getRelevantDocuments: async (query: string): Promise<Document[]> =>
-        this.similaritySearch(query, k),
+      getRelevantDocuments: async (query: string): Promise<Document[]> => 
+        this.similaritySearch(query, k)
     };
   }
 }
