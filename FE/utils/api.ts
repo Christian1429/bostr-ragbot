@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'http://localhost:3003'
+const BACKEND_URL = process.env.NEXT_BACKEND_URL;
 
 //* 1. Load Documents
 export async function loadDocuments(
