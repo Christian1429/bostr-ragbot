@@ -48,19 +48,3 @@ export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
     );
   }
 }
-
-// Configure file upload with Multer
-// const storage = multer.memoryStorage();
-// const upload = multer({
-//   storage: storage,
-//   limits: {
-//     fileSize: 10 * 1024 * 1024, // 10MB max file size
-//   },
-//   fileFilter: (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-//     if (file.mimetype === 'application/pdf') {
-//       cb(null, true);
-//     } else {
-//       (cb as any)(new Error('Endast PDF-filer är tillåtna!'), false);
-//     }
-//   }
-// });

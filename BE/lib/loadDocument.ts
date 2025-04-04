@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import multer from 'multer';
-import { extractTextFromPDF, fetchUrlContent} from '../utils/utils.js';
-import { addToVectorStore } from '../lib/vectorStore.js';
-import { LoadDocumentsRequestBody } from '../lib/interfaces.js';
+import { extractTextFromPDF, fetchUrlContent } from '../utils/utils.js';
+import { addToVectorStore } from './vectorStore.js';
+import { LoadDocumentsRequestBody } from './interfaces.js';
 
 const storage = multer.memoryStorage();
 
@@ -24,10 +24,7 @@ export const upload = multer({
   },
 });
 
-export const loadDocuments = (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const loadDocuments = (req: Request, res: Response): Promise<void> => {
   return new Promise(async (resolve, reject) => {
     try {
       let documentContent: string;
