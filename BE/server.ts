@@ -51,9 +51,9 @@ const pdfExtract = new PDFExtract();
 
 // Configure CORS
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3003', 'http://localhost', 'http://localhost:80','https://web-devs.me','https://www.web-devs.me',
-         'https://hostchatbot-backend-f1a9.onrender.com',
-         'https://dreamhost.com'
+  origin: ['http://localhost:5173', 'http://localhost:3003', 'http://localhost', 'http://localhost:80','http://localhost:3000',
+         
+         
   ],
   methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
