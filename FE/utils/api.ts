@@ -63,6 +63,7 @@ export async function handleUrlLoad(url: string, type: 'pdf' | 'url' | 'text') {
   try {
     const result = await loadDocuments(type, url, undefined, undefined);
     console.log(result);
+    console.log(url)
   } catch (error) {
     console.error('Error loading documents:', error);
   }

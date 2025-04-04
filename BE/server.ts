@@ -50,15 +50,16 @@ const app = express();
 const pdfExtract = new PDFExtract();
 
 // Configure CORS
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3003', 'http://localhost', 'http://localhost:80','http://localhost:3000',
-         
-         
-  ],
-  methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      'http://localhost:3000',
+    ],
+    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
 
 app.options('*', cors());
 app.use(express.json());
@@ -212,7 +213,6 @@ async function addToVectorStore(content: string, sourceType: SourceType, sourceU
     throw error;
   }
 }
-
 /**
  * ROUTES
  */
