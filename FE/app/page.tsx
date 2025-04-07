@@ -44,14 +44,34 @@ function ApiComponent() {
   };
 
   const handleFileUploadClick = async () => {
-    if (file) {
-      try {
-        await handleFileUpload(file, 'pdf');
-        alert('File uploaded successfully!');
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        alert('Error uploading file.');
+    if (!file) {
+      alert('Välj en fil innan du försöker ladda upp!');
+      return;
+    }
+    try {
+      let fileType: 'pdf' | 'json';
+
+      if (file.type === 'application/pdf') {
+        fileType = 'pdf';
+      } else if (
+        file.type === 'application/json' ||
+        file.name.endsWith('.json')
+      ) {
+        fileType = 'json';
+      } else {
+        alert('Only PDF and JSON files are allowed');
+        return;
       }
+
+      await handleFileUpload(file, fileType);
+      alert('File uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert(
+        `Error uploading file: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`
+      );
     }
   };
 
