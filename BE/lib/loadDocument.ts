@@ -3,6 +3,7 @@ import multer from 'multer';
 import { extractTextFromPDF, fetchUrlContent } from '../utils/utils.js';
 import { addToVectorStore } from './vectorStore.js';
 import { LoadDocumentsRequestBody } from './interfaces.js';
+import { ExtractTextFromJson } from '../utils/utils.js';
 
 const storage = multer.memoryStorage();
 
@@ -16,10 +17,19 @@ export const upload = multer({
     file: Express.Multer.File,
     cb: multer.FileFilterCallback
   ) => {
+    // Correct PDF check
     if (file.mimetype === 'application/pdf') {
       cb(null, true);
+    }
+    // Correct JSON check (including alternative JSON mime types)
+    if (
+      file.mimetype === 'application/json' ||
+      file.mimetype === 'text/json' ||
+      file.originalname.endsWith('.json')
+    ) {
+      cb(null, true);
     } else {
-      (cb as any)(new Error('Endast PDF-filer är tillåtna!'), false);
+      cb as any, (new Error('Endast PDF- och JSON-filer är tillåtna!'), false);
     }
   },
 });
@@ -33,7 +43,15 @@ export const loadDocuments = (req: Request, res: Response): Promise<void> => {
 
       if (sourceType === 'pdf' && req.file) {
         documentContent = await extractTextFromPDF(req.file.buffer);
-      } else if (sourceType === 'url') {
+      } else if (sourceType === 'json' && req.file) {
+        // First parse the JSON file
+        const jsonData = JSON.parse(req.file.buffer.toString());
+        // Then extract text (handles both single object and array)
+        documentContent = await ExtractTextFromJson(
+          Array.isArray(jsonData) ? jsonData : [jsonData],
+        );
+      }
+      else if (sourceType === 'url') {
         if (!body.url) {
           res.status(400).json({ error: 'URL is required for type "url"' });
           resolve();
@@ -64,6 +82,8 @@ export const loadDocuments = (req: Request, res: Response): Promise<void> => {
             ? body.url
             : sourceType === 'pdf'
             ? 'PDF upload'
+            : sourceType === 'json'
+            ? 'JSON upload'
             : 'text input',
       });
       resolve();

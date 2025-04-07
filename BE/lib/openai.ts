@@ -12,7 +12,6 @@ export const embeddings = new OpenAIEmbeddings({
   modelName: 'text-embedding-3-small',
 });
 
-
 // Generate response from OpenAI
 export async function generateResponse(prompt: string): Promise<string> {
   try {
