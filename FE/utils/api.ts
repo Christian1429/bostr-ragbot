@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'http://localhost:3003'; // flytta sen
+const BACKEND_URL = process.env.NEXT_BACKEND_URL;
 
-// 1. Load Documents
+//* 1. Load Documents
 export async function loadDocuments(
   type: 'url' | 'pdf' | 'text',
   url?: string,
@@ -33,22 +33,13 @@ export async function loadDocuments(
   return response.data;
 }
 
-// 2. Chat
+//* Chat
 export async function chat(question: string): Promise<{ answer: string }> {
   const response = await axios.post(`${BACKEND_URL}/api/chat`, { question });
   return response.data;
 }
 
-// 3. Migrate Vectorstore
-export async function migrateVectorstore(): Promise<{
-  message: string;
-  count: number;
-}> {
-  const response = await axios.post(`${BACKEND_URL}/api/migrate-vectorstore`);
-  return response.data;
-}
-
-// Example Load Document function using file upload
+//* FILE Load Document function.
 export async function handleFileUpload(file: File, type: 'pdf' | 'url' | 'text') {
   try {
     const result = await loadDocuments(type, undefined, undefined, file);
@@ -58,7 +49,7 @@ export async function handleFileUpload(file: File, type: 'pdf' | 'url' | 'text')
   }
 }
 
-// Example Load Document function using url
+//* URL Load Document function.
 export async function handleUrlLoad(url: string, type: 'pdf' | 'url' | 'text') {
   try {
     const result = await loadDocuments(type, url, undefined, undefined);
@@ -69,7 +60,7 @@ export async function handleUrlLoad(url: string, type: 'pdf' | 'url' | 'text') {
   }
 }
 
-//Example Load Document function using text.
+//* TEXT Load Document function.
 export async function handleTextLoad(text: string, type: 'pdf' | 'url' | 'text') {
   try {
     const result = await loadDocuments(type, undefined, text, undefined);
@@ -79,15 +70,16 @@ export async function handleTextLoad(text: string, type: 'pdf' | 'url' | 'text')
   }
 }
 
-export async function handleChat(question: string) {
-  try {
-    const result = await chat(question);
-    console.log(result.answer);
-  } catch (error) {
-    console.error('Error chatting:', error);
-  }
+//* Migrate Vectorstore
+export async function migrateVectorstore(): Promise<{
+  message: string;
+  count: number;
+}> {
+  const response = await axios.post(`${BACKEND_URL}/api/migrate-vectorstore`);
+  return response.data;
 }
 
+//* MIGRATE Vectorstore function.
 export async function handleMigration() {
   try {
     const result = await migrateVectorstore();
