@@ -23,4 +23,17 @@ export interface FirestoreDocument {
   metadata?: Record<string, any>;
 }
 
-export type SourceType = 'url' | 'pdf' | 'text';
+export interface JsonExtractResult { 
+  [key: string]: any;
+}
+
+export interface FlattenedObject {
+  [key: string]: string;
+}
+
+export interface ExtractTextOptions {
+  keysToExtract?: string[];
+}
+
+export type SourceType = 'url' | 'pdf' | 'text' | 'json';
+

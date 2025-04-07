@@ -10,8 +10,7 @@ router.post('/migrate-vectorstore', MigrateVectorStore);
 router.post(
   '/load-documents',
   upload.single('file'),
-  loadDocuments,
-  addToVectorStore
+  loadDocuments
 );
 
 export default router;

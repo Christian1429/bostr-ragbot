@@ -2,6 +2,8 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { PDFExtract } from 'pdf.js-extract';
 import { PDFExtractResult } from '../lib/interfaces.js';
+import { FlattenedObject } from '../lib/interfaces.js';
+import { ExtractTextOptions } from '../lib/interfaces.js'
 
 const pdfExtract = new PDFExtract();
 
@@ -47,4 +49,49 @@ export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
       'Kunde inte läsa PDF-filen. Kontrollera att filen är giltig.'
     );
   }
+}
+
+//* Text extract from Json
+export function ExtractTextFromJson(
+  jsonObjects: Record<string, any>[],
+): string {
+
+  const texts: string[] = [];
+
+  for (const obj of jsonObjects) {
+    function flattenJson(
+      obj: any,
+      key = '',
+      separator = ' '
+    ): Record<string, string> {
+      const items: Record<string, string> = {};
+      if (typeof obj === 'object' && obj !== null) {
+        if (Array.isArray(obj)) {
+          obj.forEach((v, i) => {
+            const newKey = key ? `${key}${separator}${i}` : String(i);
+            Object.assign(items, flattenJson(v, newKey, separator));
+          });
+        } else {
+          for (const k in obj) {
+            if (Object.hasOwnProperty.call(obj, k)) {
+              const newKey = key ? `${key}${separator}${k}` : k;
+              Object.assign(items, flattenJson(obj[k], newKey, separator));
+            }
+          }
+        }
+      } else if (
+        typeof obj === 'string' ||
+        typeof obj === 'number' ||
+        typeof obj === 'boolean'
+      ) {
+        items[key] = String(obj);
+      }
+      return items;
+    }
+
+    const flattened = flattenJson(obj);
+    texts.push(Object.values(flattened).join(' '));
+  }
+
+  return texts.join('\n');
 }
