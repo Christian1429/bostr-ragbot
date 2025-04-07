@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const BACKEND_URL = process.env.NEXT_BACKEND_URL;
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 //* 1. Load Documents
 export async function loadDocuments(
-  type: 'url' | 'pdf' | 'text',
+  type: 'url' | 'pdf' | 'text' | 'json',
   url?: string,
   content?: string,
   file?: File
@@ -17,6 +17,8 @@ export async function loadDocuments(
   } else if (type === 'text' && content) {
     formData.append('content', content);
   } else if (type === 'pdf' && file) {
+    formData.append('file', file);
+  } else if (type === 'json' && file) {
     formData.append('file', file);
   }
 
@@ -40,7 +42,7 @@ export async function chat(question: string): Promise<{ answer: string }> {
 }
 
 //* FILE Load Document function.
-export async function handleFileUpload(file: File, type: 'pdf' | 'url' | 'text') {
+export async function handleFileUpload(file: File, type: 'pdf' | 'url' | 'text' | 'json') {
   try {
     const result = await loadDocuments(type, undefined, undefined, file);
     console.log(result);
@@ -61,7 +63,7 @@ export async function handleUrlLoad(url: string, type: 'pdf' | 'url' | 'text') {
 }
 
 //* TEXT Load Document function.
-export async function handleTextLoad(text: string, type: 'pdf' | 'url' | 'text') {
+export async function handleTextLoad(text: string, type: 'pdf' | 'url' | 'text' | 'json') {
   try {
     const result = await loadDocuments(type, undefined, text, undefined);
     console.log(result);
