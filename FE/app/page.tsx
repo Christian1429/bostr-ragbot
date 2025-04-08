@@ -8,7 +8,6 @@ import {
   handleMigration,
   chat,
 } from '../utils/api';
-import logo from '../public/bostr-white.png'
 
 function ApiComponent() {
   const [chatQuestion, setChatQuestion] = useState('');

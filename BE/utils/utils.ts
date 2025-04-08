@@ -2,8 +2,6 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { PDFExtract } from 'pdf.js-extract';
 import { PDFExtractResult } from '../lib/interfaces.js';
-import { FlattenedObject } from '../lib/interfaces.js';
-import { ExtractTextOptions } from '../lib/interfaces.js'
 
 const pdfExtract = new PDFExtract();
 
