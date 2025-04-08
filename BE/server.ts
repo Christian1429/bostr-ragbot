@@ -10,7 +10,7 @@ const app = express();
 app.use(
   cors({
     origin: [
-      'http://localhost:3000',
+      'http://localhost:8000',
     ],
     methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -22,7 +22,7 @@ app.use(
 app.use(express.json());
 
 // Start the server
-const PORT = Number(process.env.PORT) || 3003;
+const PORT = Number(process.env.PORT) ||8000
 if (!process.env.OPENAI_API_KEY) {
   console.error('Error: OPENAI_API_KEY is not set in environment variables.');
   process.exit(1);

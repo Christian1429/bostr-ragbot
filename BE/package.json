@@ -6,11 +6,12 @@
   "scripts": {
     "build": "npx tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "dev": "node --loader ts-node/esm server.ts"
+    "dev": "tsx server.ts"
   },
   "devDependencies": {
     "nodemon": "^3.1.9",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3"
   },
   "dependencies": {
     "@firebase/firestore": "^4.7.6",

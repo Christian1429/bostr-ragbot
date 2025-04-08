@@ -196,11 +196,11 @@ class OpenAIEmbeddingWrapper implements IEmbeddingFunction {
       // Get collection stats if exists
       let collectionStats = null;
       try {
-        const collections = await client.listCollections() as ChromaCollection[];
-        console.log("Alla samlingar:", JSON.stringify(collections, null, 2));
+        const collectionNames = await client.listCollections();
+        console.log("Alla samlingar:", JSON.stringify(collectionNames, null, 2));
         
         // Kontrollera om collections är en array och har element
-        if (!Array.isArray(collections) || collections.length === 0) {
+        if (!Array.isArray(collectionNames) || collectionNames.length === 0) {
           console.log("Inga samlingar hittades");
           res.json({
             status: "online",
@@ -211,23 +211,16 @@ class OpenAIEmbeddingWrapper implements IEmbeddingFunction {
         }
         
         // Debugga strukturen på den första samlingen
-        if (collections.length > 0) {
-          console.log("Första samlingens struktur:", typeof collections[0]);
-          console.log("Första samlingens egenskaper:", Object.keys(collections[0]));
+        if (collectionNames.length > 0) {
+          console.log("Första samlingens struktur:", typeof collectionNames[0]);
+          console.log("Första samlingens värde:", collectionNames[0]);
         }
         
-        // Hitta samlingen med rätt namn - med typning kan vi förenkla detta
-        let targetCollection = null;
-        for (const c of collections) {
-          console.log(`Inspekterar samling: ${JSON.stringify(c)}`);
-          if (c.name === chromaConfig.collectionName) {
-            targetCollection = c;
-            break;
-          }
-        }
-        console.log("Hittad målsamling:", targetCollection);
+        // Check if our target collection exists in the list of names
+        const targetCollectionExists = collectionNames.includes(chromaConfig.collectionName);
+        console.log("Hittad målsamling:", targetCollectionExists ? chromaConfig.collectionName : "not found");
         
-        if (targetCollection) {
+        if (targetCollectionExists) {
           // Skapa en embedding function som använder dina OpenAI embeddings
           const embeddingFunction = new OpenAIEmbeddingWrapper(embeddings);
           
