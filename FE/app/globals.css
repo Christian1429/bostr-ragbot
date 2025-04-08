@@ -1,23 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #4c2040;
+  --foreground: #ffffff;
+  --bostr-logo-url: url('/bostr-white.png');
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-/* @theme inline {
+@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-} */
+}
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #4c2040;
     --foreground: #ededed;
   }
 }

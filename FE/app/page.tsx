@@ -8,6 +8,7 @@ import {
   handleMigration,
   chat,
 } from '../utils/api';
+import logo from '../public/bostr-white.png'
 
 function ApiComponent() {
   const [chatQuestion, setChatQuestion] = useState('');
@@ -97,18 +98,32 @@ function ApiComponent() {
 
   return (
     <div>
-      <h1 className="text-4xl font-extrabold text-center text-blue-600 my-8">
-        BOSTR-RAGBOT
+      <div
+        style={{
+          backgroundImage: 'var(--bostr-logo-url)',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          width: '160px',
+          height: '80px',
+          margin: '0 auto',
+          marginTop: '20px',
+        }}
+      >
+        <span className="sr-only">BOSTR Logo</span>
+      </div>
+      <h1 className="text-1xl font-bold text-center text-white-600 my-4">
+        Retrieval-Augmented Generation
       </h1>
+
       <div className="p-6 space-y-6 max-w-lg mx-auto">
         <textarea
-          className="w-full h-48 border rounded-lg p-4 shadow-md resize-none focus:outline-none focus:ring focus:ring-blue-200"
+          className="w-full h-48 border rounded-lg p-4 shadow-md resize-none focus:outline-none focus:ring focus:ring-white-200"
           value={chatQuestion}
           onChange={(e) => setChatQuestion(e.target.value)}
           placeholder="Skriv in din fråga..."
         />
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-blue-200"
+          className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
           onClick={handleChatClick}
         >
           Skicka
@@ -120,17 +135,17 @@ function ApiComponent() {
           </div>
         )}
       </div>
-      <div className="w-full border-b border-gray-300 py-4"></div>
+      <div className="w-full border-b border-[#51D4A0] py-4"></div>
       {/* ADMIN PANEL */}
 
       {/* Migrate Vectorstore */}
       <div className="p-6 space-y-6 max-w-lg mx-auto">
-        <h1 className="text-4xl font-extrabold text-center text-blue-600 my-8">
+        <h1 className="text-1xl font-extrabold text-center text-white-600 my-8">
           Admin Panel
         </h1>
         <div className="space-y-4">
           <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-blue-200"
+            className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
             onClick={handleMigrationClick}
           >
             Migrera Vectorstore
@@ -148,10 +163,10 @@ function ApiComponent() {
         <input
           type="file"
           onChange={handleFileChange}
-          className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg shadow-md p-3"
+          className="block w-full text-sm text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#4C2040] hover:file:bg-blue-100 border border-white-300 rounded-lg shadow-md p-3"
         />
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-blue-200"
+          className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
           onClick={handleFileUploadClick}
         >
           Ladda upp fil
@@ -168,7 +183,7 @@ function ApiComponent() {
           placeholder="Lägg in URL..."
         />
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-blue-200"
+          className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
           onClick={handleUrlLoadClick}
         >
           Skrapa hemsida
@@ -184,7 +199,7 @@ function ApiComponent() {
           placeholder="Skriv text..."
         />
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-blue-200"
+          className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
           onClick={handleTextLoadClick}
         >
           Skicka text
