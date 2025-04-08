@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import multer from 'multer';
 import { extractTextFromPDF, fetchUrlContent } from '../utils/utils.js';
-import { addToVectorStore } from './vectorStore.js';
+import { addToVectorStore } from './ChromaDBVectorStore.js';
 import { LoadDocumentsRequestBody } from './interfaces.js';
 import { ExtractTextFromJson } from '../utils/utils.js';
 

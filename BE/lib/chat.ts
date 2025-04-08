@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import { ChatRequestBody } from './interfaces.js';
 import { generateResponse } from './openai.js';
-import { getVectorStore } from './vectorStore.js';
+import { getVectorStore } from './ChromaDBVectorStore.js';
 
 export const Chat = ( async (req: Request, res: Response): Promise<void> => {
   try {
