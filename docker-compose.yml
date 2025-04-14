@@ -1,0 +1,28 @@
+
+
+services:
+  backend:
+    build: ./backend
+    container_name: rag-chatbot-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: sh -c "npm run build && npm start"
+  
+  frontend:
+    build: ./frontend
+    container_name: nextjs-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: sh -c "npm run build && npm start"
