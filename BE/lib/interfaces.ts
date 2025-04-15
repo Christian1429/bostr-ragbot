@@ -12,6 +12,7 @@ export interface LoadDocumentsRequestBody {
   type: SourceType;
   url?: string;
   content?: string;
+  tag?: string;
 }
 
 export interface ChatRequestBody {

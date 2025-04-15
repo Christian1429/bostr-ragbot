@@ -72,7 +72,8 @@ export const loadDocuments = (req: Request, res: Response): Promise<void> => {
       await addToVectorStore(
         documentContent,
         sourceType,
-        sourceType === 'url' ? body.url || '' : ''
+        sourceType === 'url' ? body.url || '' : '',
+        body.tag
       );
 
       res.json({

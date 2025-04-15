@@ -23,7 +23,8 @@ export async function getVectorStore(): Promise<OpenAIFirebaseVectorStore> {
 export async function addToVectorStore(
   content: string,
   sourceType: SourceType,
-  sourceUrl: string = ''
+  sourceUrl: string = '',
+  tag: string = ''
 ): Promise<OpenAIFirebaseVectorStore> {
   try {
     // Split content into manageable chunks
@@ -40,6 +41,7 @@ export async function addToVectorStore(
           ? 'pdf-upload'
           : 'text-input',
       dateAdded: new Date().toISOString(),
+      tags: tag ? [tag] : [],
     };
 
     // Create documents from content

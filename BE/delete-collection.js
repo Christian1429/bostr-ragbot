@@ -47,7 +47,6 @@ async function deleteQueryBatch(db, query, batchSize, resolve, reject) {
   });
 }
 
-// Replace 'your_collection_name' with the actual name of your collection
 const collectionName = 'openai_document_embeddings'; //! Change to your collection name
 const batchSize = 1;
 
