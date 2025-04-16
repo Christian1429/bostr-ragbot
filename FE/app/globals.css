@@ -4,6 +4,7 @@
   --background: #4c2040;
   --foreground: #ffffff;
   --bostr-logo-url: url('/bostr-white.png');
+  --arrow-logo-url: url('/arrow.svg');
     box-sizing: border-box;
     margin: 0;
     padding: 0;
