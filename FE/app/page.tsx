@@ -8,8 +8,9 @@ import {
   handleMigration,
   chat,
 } from '../utils/api';
+import { DeleteByTag } from './components/DeleteTags'
 
-function ApiComponent() {
+function RagComponent() {
   const [chatQuestion, setChatQuestion] = useState('');
   const [chatAnswer, setChatAnswer] = useState<string | null>(null);
   const [migrationResult, setMigrationResult] = useState<string | null>(null);
@@ -64,7 +65,7 @@ function ApiComponent() {
         return;
       }
 
-      await handleFileUpload(file, fileType);
+      await handleFileUpload(file, fileType, tag);
       alert('File uploaded successfully!');
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -78,7 +79,7 @@ function ApiComponent() {
 
   const handleUrlLoadClick = async () => {
     try {
-      await handleUrlLoad(url, 'url');
+      await handleUrlLoad(url, 'url', tag);
       alert('URL loaded successfully!');
     } catch (error) {
       console.error('Error loading URL:', error);
@@ -136,6 +137,7 @@ function ApiComponent() {
         )}
       </div>
       <div className="w-full border-b border-[#51D4A0] py-4"></div>
+
       {/* ADMIN PANEL */}
 
       {/* Migrate Vectorstore */}
@@ -143,6 +145,30 @@ function ApiComponent() {
         <h1 className="text-1xl font-extrabold text-center text-white-600 my-8">
           Admin Panel
         </h1>
+        {/* Tag input */}
+        <h4 className="text-center text-white-600 my-8">
+          Ange META tagg för dina dokument
+        </h4>
+        <input
+          type="text"
+          className="w-full border rounded-lg p-4 shadow-md focus:outline-none focus:ring focus:ring-blue-200"
+          value={tag}
+          onChange={(e) => setTag(e.target.value)}
+          placeholder="META tagg tex: SKATT2025"
+        />
+        <div
+          style={{
+            backgroundImage: 'var(--arrow-logo-url)',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            width: '50px',
+            height: '85px',
+            margin: '0 auto',
+            marginTop: '20px',
+            color: 'white',
+            backgroundColor: '#4C2040',
+          }}
+        ></div>
         <div className="space-y-4">
           <button
             className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
@@ -198,14 +224,6 @@ function ApiComponent() {
           onChange={(e) => setText(e.target.value)}
           placeholder="Skriv text..."
         />
-        {/* Tag input field */}
-        <input
-          type="text"
-          className="w-full border rounded-lg p-4 shadow-md focus:outline-none focus:ring focus:ring-blue-200"
-          value={tag}
-          onChange={(e) => setTag(e.target.value)}
-          placeholder="Tagga t.ex. TAX2024"
-        />
         <button
           className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
           onClick={handleTextLoadClick}
@@ -213,8 +231,10 @@ function ApiComponent() {
           Skicka text
         </button>
       </div>
+      <div className="w-full border-b border-[#51D4A0] py-4"></div>
+      <DeleteByTag />
     </div>
   );
 }
 
-export default ApiComponent;
+export default RagComponent;
