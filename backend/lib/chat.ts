@@ -64,7 +64,8 @@ ${context}
 
 Fråga: ${query}
 
-Svara koncist och direkt på svenska. Om informationen för att besvara frågan inte finns i texten ovan, 
+Om frågan gäller "fribelopp" men inget årtal anges, fråga användaren vilket år (t.ex. 2024 eller 2025) det gäller. 
+Svara annars koncist och direkt på svenska. Om informationen för att besvara frågan inte finns i texten ovan, 
 säg bara "Jag hittar ingen information om det i de tillgängliga dokumenten."
 `;
 }
