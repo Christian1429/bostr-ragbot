@@ -46,7 +46,7 @@ Follow these steps to get the BOSTR-RAGBOT up and running on your local machine.
     * Create a file named `adminConfig.json` in the **root** directory of your project.
     * Obtain your Firebase project configuration from the Firebase Console. Go to your project, then **Project settings** (gear icon) -> **Service accounts** -> **Generate new private key** -> **Firebase SDK snippet**. Copy the `config` object and paste it into `adminConfig.json` or import the .json file and change name to `adminConfig.json`.
 
-    ```json
+  ```json
     {
   "type": "",
   "project_id": "",
@@ -60,7 +60,7 @@ Follow these steps to get the BOSTR-RAGBOT up and running on your local machine.
   "client_x509_cert_url": "",
   "universe_domain": ""
     }
-    ```
+  ```
 
 ## 🏃 Running the Application
 

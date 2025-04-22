@@ -1,5 +1,5 @@
 // import admin from 'firebase-admin';
-// import serviceAccount from 'adminConfig.json' assert { type: 'json' }
+// import serviceAccount from '../adminConfig.json' assert { type: 'json' }
 
 // //! USE TAG DELETE IF YOU DONT WANT TO REMOVE EVERYTHING, THIS DELETES THE WHOLE COLLECTION.
 // //! RUN THIS USING WITH NODE COMMAND NO BUTTON WILL BE ADDED FOR THIS IN CMS. 
