@@ -29,38 +29,35 @@ Follow these steps to get the BOSTR-RAGBOT up and running on your local machine.
     cd BOSTR-RAGBOT
     ```
 
-2.  **Install dependencies:** Run the following command in both the `be` (backend) and `fe` (frontend) directories:
+2.  **Install dependencies:** Run the following command in both the `BE` (backend) and `FE` (frontend) directories:
     ```bash
     cd be
     npm install
     cd ../fe
     npm install
-    cd .. # Return to the project root
     ```
 
 3.  **Configure Environment Variables:**
-    * Create a `.env` file in both the `be` and `fe` directories.
-    * Refer to the `.env.example` file in each directory for the required keys and their expected format.
+    * Expected environment comes from:
+        * `OPENAI_API`
+        ```bash
+        https://platform.openai.com/api-keys
+        ```
+        * `FIREBASE`
+        ```bash
+        https://firebase.google.com/
+        ```
 
+    * Create account and obtain your API keys from the respective platforms.
+
+    * Add your keys to `.env.example` file in `BE` and the required keys.
+    * Rename `.env.example` to `.env` file in both the `BE` and `FE` directories.
+    
 4.  **Configure Firebase Admin Access (Backend):**
-    * Create a file named `adminConfig.json` in the **root** directory of your project.
-    * Obtain your Firebase project configuration from the Firebase Console. Go to your project, then **Project settings** (gear icon) -> **Service accounts** -> **Generate new private key** -> **Firebase SDK snippet**. Copy the `config` object and paste it into `adminConfig.json` or import the .json file and change name to `adminConfig.json`.
+    * Create a new Firebase project with a Cloud Firestore or use an existing one.
+    * Obtain your Firebase project configuration from the Firebase Console. Go to your project, then **Project settings** (gear icon) -> **Service accounts** -> **Generate new private key** -> **Firebase SDK snippet**. Copy the `config` object and paste it into `adminConfig.example` or import the .json file and change name to `adminConfig.json`.
+    * Rename the file named `adminConfig.example` to `adminConfig.json` and add your Firebase keys.
 
-  ```json
-    {
-  "type": "",
-  "project_id": "",
-  "private_key_id": "",
-  "private_key": "",
-  "client_email": "",
-  "client_id": "",
-  "auth_uri": "",
-  "token_uri": "",
-  "auth_provider_x509_cert_url": "",
-  "client_x509_cert_url": "",
-  "universe_domain": ""
-    }
-  ```
 
 ## 🏃 Running the Application
 
@@ -78,13 +75,13 @@ You have several options to start the BOSTR-RAGBOT:
     cd fe
     npm run start:all
     ```
-    *(Note: Ensure your `fe/package.json` has a `start:all` script that handles starting both frontend and backend. You might need to adjust this command based on your specific setup.)*
+    *(Note: Ensure your `FE/package.json` has a `start:all` script that handles starting both frontend and backend. You might need to adjust this command based on your specific setup.)*
 
 ### ⚙️ Run Backend Only
 
 1.  Navigate to the backend directory:
     ```bash
-    cd BOSTR-RAGBOT/be
+    cd BOSTR-RAGBOT/BE
     ```
 
 2.  Start the backend server:
