@@ -1,14 +1,38 @@
-// 2. Chat route
+
 import { Request, Response } from 'express';
 import { ChatRequestBody } from './interfaces.js';
 import { generateResponse } from './openai.js';
 import { getVectorStore } from './vectorStore.js';
 
+import { db } from '../utils/admin.js';
+
 let lastQuestionType: string | null = null;
 
 export const Chat = async (req: Request, res: Response): Promise<void> => {
   try {
+    
     const { question } = req.body as ChatRequestBody;
+    const userId = req.headers['user-id'] as string || req.body.userId;
+    
+  
+    let userName = req.body.userName || "användare";
+    
+    if (userId) {
+      try {
+        const userProfileRef = db.collection('userProfiles').doc(userId);
+        const userProfile = await userProfileRef.get();
+        
+        if (userProfile.exists) {
+          const userData = userProfile.data();
+          if (userData && userData.name) {
+            userName = userData.name;
+          }
+        }
+      } catch (profileError) {
+        console.error('Error fetching user profile:', profileError);
+        
+      }
+    }
 
     if (!question) {
       res.status(400).json({ error: 'Question is required' });
@@ -17,13 +41,25 @@ export const Chat = async (req: Request, res: Response): Promise<void> => {
 
     const lowerQuestion = question.toLowerCase();
 
+    if (lowerQuestion.includes('hej') || 
+        lowerQuestion.includes('hallå') || 
+        lowerQuestion.includes('tjena') ||
+        lowerQuestion === "hej" ||
+        lowerQuestion === "hello" ||
+        lowerQuestion === "hi") {
+      res.json({ 
+        answer: `Hej ${userName}! Välkommen till BOSTR-chatboten. Hur kan jag hjälpa dig idag?` 
+      });
+      return;
+    }
+
     if (lastQuestionType === 'waiting-for-income') {
       const income = parseInt(question.replace(/\D/g, ''), 10);
       if (!isNaN(income)) {
         const fribelopp = income * 6;
-        lastQuestionType = null; // Rensa state
+        lastQuestionType = null; 
         res.json({
-          answer: `Ditt fribelopp blir cirka ${fribelopp.toLocaleString()} kronor.`,
+          answer: `Ditt fribelopp blir cirka ${fribelopp.toLocaleString()} kronor, ${userName}.`,
         });
         return;
       } else {
@@ -35,52 +71,48 @@ export const Chat = async (req: Request, res: Response): Promise<void> => {
       }
     }
 
-    if (lowerQuestion.includes('fribelopp')) {
+    if (lowerQuestion.includes('student')) {
       lastQuestionType = 'waiting-for-income';
-      res.json({ answer: 'Hur mycket tror du att du kommer att tjäna i år?' });
+      res.json({ answer: `Hur mycket tror du att du kommer att tjäna i år, ${userName}?` });
       return;
     }
 
-    console.log(`Processar fråga: "${question}"`);
+    console.log(`Processar fråga från ${userName}: "${question}"`);
+
     const broadSearchKeywords: string[] = [
       'förklara',
       'beskriv',
       'jämför',
       'hur fungerar',
     ];
-
     const isBroadSearch: boolean = broadSearchKeywords.some((word) =>
       question.toLowerCase().includes(word)
     );
-    // Get vectorStore
-    const store = await getVectorStore();
 
-    // Get relevant documents
+    const store = await getVectorStore();
+    
     console.log('Söker efter relevanta dokument...');
     const retriever = store.asRetriever(isBroadSearch ? 20 : 6);
     const relevantDocs = await retriever.getRelevantDocuments(question);
-
     console.log(`Hittade ${relevantDocs.length} relevanta dokument`);
 
-    // Create context from relevant documents
     const context = relevantDocs.map((doc) => doc.pageContent).join('\n\n');
-
-    // If no context was found
+    
+   
     if (!context.trim()) {
       console.log('Ingen relevant kontext hittades');
       res.json({
         answer:
-          'Jag hittar ingen information om det i de tillgängliga dokumenten.',
+          `Jag hittar ingen information om det i de tillgängliga dokumenten, ${userName}.`,
       });
       return;
     }
 
-    // Create prompt and generate response
     console.log('Skapar prompt och genererar svar...');
-    const formattedPrompt = await createPromptTemplate(context, question);
+    const formattedPrompt = await createPromptTemplate(context, question, userName);
     const response = await generateResponse(formattedPrompt);
-
     console.log('Svar genererat');
+    
     res.json({ answer: response });
   } catch (error) {
     console.error('Error in /api/chat:', error);
@@ -88,22 +120,26 @@ export const Chat = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-//* Create prompt template for question-answering
 export async function createPromptTemplate(
   context: string,
-  query: string
+  query: string,
+  userName: string = "användare"
 ): Promise<string> {
   return `
-Du är en hjälpsam AI-assistent som svarar på svenska. Använd informationen nedan för att svara på frågan 
+Du är en hjälpsam AI-assistent som svarar på svenska. Använd informationen nedan för att svara på frågan.
+Ditt namn är BOSTR-bot och du pratar med användaren ${userName}.
 
 Här är information som du kan använda:
 ${context}
 
-Fråga: ${query}
+Fråga från ${userName}: ${query}
 
-Om frågan gäller "fribelopp" men inget årtal anges, fråga användaren vilket år (t.ex. 2024 eller 2025) det gäller. 
-Svara annars koncist och direkt på svenska. Om informationen för att besvara frågan inte finns i texten ovan, 
-säg bara "Jag hittar ingen information om det i de tillgängliga dokumenten."
+Om frågan gäller "fribelopp" men inget årtal anges, fråga användaren vilket år (t.ex. 2024 eller 2025) det gäller.
+Svara annars koncist och direkt på svenska. Var vänlig och personlig i ditt svar genom att använda användarens namn (${userName}) ibland.
 
+Om informationen för att besvara frågan inte finns i texten ovan,
+säg bara "Jag hittar ingen information om det i de tillgängliga dokumenten, ${userName}."
+
+Avsluta gärna ditt svar på ett personligt sätt, t.ex. "Hoppas det hjälper dig, ${userName}!" om det passar i sammanhanget.
 `;
 }

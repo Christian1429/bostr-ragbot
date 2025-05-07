@@ -5,8 +5,13 @@ import { loadDocuments } from '../lib/loadDocument.js';
 import { upload } from '../lib/loadDocument.js';
 import { deleteDocumentsByTag } from '../lib/queryDelete.js';
 import { searchDocumentsByTag } from '../lib/querySearch.js';
+import urlRoutes from './urlRoutes.js';
 
 const router = express.Router();
+
+
+router.use('/', urlRoutes);
+
 
 router.post('/chat', Chat);
 router.post('/migrate-vectorstore', MigrateVectorStore);

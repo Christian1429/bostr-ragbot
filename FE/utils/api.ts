@@ -77,8 +77,11 @@ export async function loadDocuments(
 }
 
 //* Chat
-export async function chat(question: string): Promise<{ answer: string }> {
-  const response = await axios.post(`${BACKEND_URL}/api/chat`, { question });
+export async function chat(question: string,userName?:string): Promise<{ answer: string }> {
+  const response = await axios.post(`${BACKEND_URL}/api/chat`, { 
+  question,
+  userName 
+  });
   return response.data;
 }
 

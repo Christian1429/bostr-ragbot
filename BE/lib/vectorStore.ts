@@ -3,7 +3,7 @@ import { firebaseConfig } from '../firebaseConfig.js';
 import { embeddings } from './openai.js';
 import { SourceType } from './interfaces.js';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { getFirestore, collection, getDocs, DocumentData } from '@firebase/firestore';
+import { getFirestore, collection, getDocs } from '@firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { FirestoreDocument } from './interfaces.js';
 import { Request, Response} from 'express';

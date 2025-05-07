@@ -35,6 +35,7 @@
     "mysql2": "^3.6.0",
     "openai": "^4.86.1",
     "pdf.js-extract": "^0.2.1",
+    "puppeteer": "^24.8.1",
     "typescript": "^5.8.2"
   }
 }

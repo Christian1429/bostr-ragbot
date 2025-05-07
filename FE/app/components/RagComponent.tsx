@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   handleFileUpload,
   handleUrlLoad,
@@ -10,6 +10,8 @@ import {
 } from '../../utils/api';
 import { DeleteByTag } from './DeleteTags';
 import { useAuth } from '../../utils/AuthContext';
+import { db } from '../../utils/firebase'; // Adjust path as needed
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function RagComponent() {
   const [chatQuestion, setChatQuestion] = useState('');
@@ -20,10 +22,36 @@ export default function RagComponent() {
   const [text, setText] = useState('');
   const [tag, setTag] = useState('');
   const { signOut } = useAuth();
+  const { user } = useAuth();
+  const [userName, setUserName] = useState<string>("användare");
+
+
+  useEffect(() => {
+    async function fetchUserProfile() {
+      if (user && user.uid) {
+        try {
+          const userProfileRef = doc(db, 'userProfiles', user.uid);
+          const userProfileSnap = await getDoc(userProfileRef);
+          
+          if (userProfileSnap.exists()) {
+            const profileData = userProfileSnap.data();
+            if (profileData && profileData.name) {
+              setUserName(profileData.name);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      }
+    }
+    
+    fetchUserProfile();
+  }, [user]);
   
   const handleChatClick = async () => {
     try {
-      const result = await chat(chatQuestion);
+      // Now you can use the userName state
+      const result = await chat(chatQuestion, userName);
       setChatAnswer(result.answer);
     } catch (error) {
       console.error('Error chatting:', error);
