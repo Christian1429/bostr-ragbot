@@ -1,0 +1,5 @@
+.env
+node_modules/
+adminConfig.json
+
+BE/config/

@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  frontend:
+    build: ./FE
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://backend:3003
+    networks:
+      - app-network
+
+  backend:
+    build: ./BE
+    ports:
+      - "3003:3003"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
