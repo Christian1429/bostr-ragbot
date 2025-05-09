@@ -51,7 +51,7 @@ export default function RagComponent() {
   const handleChatClick = async () => {
     try {
       // Now you can use the userName state
-      const result = await chat(chatQuestion, userName);
+      const result = await chat(chatQuestion, userName,user?.uid);
       setChatAnswer(result.answer);
     } catch (error) {
       console.error('Error chatting:', error);

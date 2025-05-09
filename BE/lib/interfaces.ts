@@ -13,6 +13,7 @@ export interface LoadDocumentsRequestBody {
   url?: string;
   content?: string;
   tag?: string;
+  maxPages?:number
 }
 
 export interface ChatRequestBody {

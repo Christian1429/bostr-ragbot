@@ -8,29 +8,44 @@ import { db } from '../utils/admin.js';
 
 let lastQuestionType: string | null = null;
 
+
 export const Chat = async (req: Request, res: Response): Promise<void> => {
   try {
     
     const { question } = req.body as ChatRequestBody;
     const userId = req.headers['user-id'] as string || req.body.userId;
+
+    console.log('Received userId:', userId, typeof userId);
+    console.log('Request body:', req.body);
+    console.log('Request headers:', req.headers['user-id']);
     
-  
     let userName = req.body.userName || "användare";
+    let income: number | null = null;
     
     if (userId) {
+     
       try {
         const userProfileRef = db.collection('userProfiles').doc(userId);
         const userProfile = await userProfileRef.get();
         
         if (userProfile.exists) {
           const userData = userProfile.data();
+          console.log('Användardata från Firestore:', userData);
+          
+          // Behåll namndelen oförändrad
           if (userData && userData.name) {
             userName = userData.name;
+           
           }
+
+          if (userData && userData.monthlyIncome) {
+            income = Number(userData.monthlyIncome);
+            console.log(`Inkomst från 'monthlyIncome': ${income}`);
+          }
+       
         }
       } catch (profileError) {
         console.error('Error fetching user profile:', profileError);
-        
       }
     }
 
@@ -48,7 +63,7 @@ export const Chat = async (req: Request, res: Response): Promise<void> => {
         lowerQuestion === "hello" ||
         lowerQuestion === "hi") {
       res.json({ 
-        answer: `Hej ${userName}! Välkommen till BOSTR-chatboten. Hur kan jag hjälpa dig idag?` 
+        answer: `Hej ${userName}! Din inkomst: ${income}. Välkommen till BOSTR-chatboten.` 
       });
       return;
     }
@@ -109,7 +124,7 @@ export const Chat = async (req: Request, res: Response): Promise<void> => {
     }
 
     console.log('Skapar prompt och genererar svar...');
-    const formattedPrompt = await createPromptTemplate(context, question, userName);
+    const formattedPrompt = await createPromptTemplate(context, question, userName,income);
     const response = await generateResponse(formattedPrompt);
     console.log('Svar genererat');
     
@@ -123,12 +138,14 @@ export const Chat = async (req: Request, res: Response): Promise<void> => {
 export async function createPromptTemplate(
   context: string,
   query: string,
-  userName: string = "användare"
+  userName: string = "användare",
+  income: number | null = null
 ): Promise<string> {
   return `
 Du är en hjälpsam AI-assistent som svarar på svenska. Använd informationen nedan för att svara på frågan.
-Ditt namn är BOSTR-bot och du pratar med användaren ${userName}.
+Ditt namn är BOSTR-bot och du pratar med användaren ${userName}.Du berättar också vilken inkomst användaren har ${income}
 
+Om användaren frågar efter fribeloppet kommer du kunna svara att fribeloppet är för den här användaren är 10 gånger ${income}
 Här är information som du kan använda:
 ${context}
 
