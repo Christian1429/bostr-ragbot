@@ -13,7 +13,8 @@ export interface LoadDocumentsRequestBody {
   url?: string;
   content?: string;
   tag?: string;
-  maxPages?:number
+  maxPages?:number;
+  provider?: 'openai' | 'ollama';
 }
 
 export interface ChatRequestBody {

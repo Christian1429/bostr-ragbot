@@ -6,7 +6,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 //* Delete Documents By Tags
 export const deleteDocumentsByTag = async ({
   tag,
-  collection = 'openai_document_embeddings', //! Add your collection
+  collection = 'openai_document_embeddings',
   batchSize = 100,
 }: DeleteDocumentsParams): Promise<DeleteResponse> => {
   try {
@@ -14,15 +14,12 @@ export const deleteDocumentsByTag = async ({
       `${BACKEND_URL}/api/delete`,
       { tag, collection, batchSize },
       {
-        timeout: 10000, // 10 second timeout
+        timeout: 10000,
         headers: {
           'Content-Type': 'application/json',
-          // Add auth headers if needed
-          // 'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
       }
     );
-
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -39,20 +36,25 @@ export const deleteDocumentsByTag = async ({
   }
 };
 
-//* Load Documents
+//* Load Documents with provider support
 export async function loadDocuments(
   type: 'url' | 'pdf' | 'text' | 'json',
   url?: string,
   content?: string,
   file?: File,
-  tag?: string
-
+  tag?: string,
+  provider: 'openai' | 'ollama' = 'openai',
+  maxPages?: number
 ): Promise<{ message: string; source: string }> {
   const formData = new FormData();
   formData.append('type', type);
-
+  formData.append('provider', provider);
+  
   if (type === 'url' && url) {
     formData.append('url', url);
+    if (maxPages) {
+      formData.append('maxPages', maxPages.toString());
+    }
   } else if (type === 'text' && content) {
     formData.append('content', content);
   } else if (type === 'pdf' && file) {
@@ -60,9 +62,11 @@ export async function loadDocuments(
   } else if (type === 'json' && file) {
     formData.append('file', file);
   }
+  
   if (tag) {
-   formData.append('tag', tag);
+    formData.append('tag', tag);
   }
+  
   const response = await axios.post(
     `${BACKEND_URL}/api/load-documents`,
     formData,
@@ -72,67 +76,94 @@ export async function loadDocuments(
       },
     }
   );
-
   return response.data;
 }
 
-//* Chat
-export async function chat(question: string,userName?:string,userId?:string): Promise<{ answer: string }> {
-  const response = await axios.post(`${BACKEND_URL}/api/chat`, { 
-  question,
-  userName,
-  userId 
+//* Chat with provider support
+export async function chat(
+  question: string,
+  userName?: string,
+  userId?: string,
+  provider: 'openai' | 'ollama' = 'openai',
+  modelName?: string
+): Promise<{ answer: string }> {
+  const response = await axios.post(`${BACKEND_URL}/api/chat`, {
+    question,
+    userName,
+    userId,
+    provider,
+    modelName
   });
   return response.data;
 }
 
-//* FILE Load Document Function.
-export async function handleFileUpload(file: File, type: 'pdf' | 'url' | 'text' | 'json', tag: string) {
+//* FILE Load Document Function with provider
+export async function handleFileUpload(
+  file: File, 
+  type: 'pdf' | 'url' | 'text' | 'json', 
+  tag: string,
+  provider: 'openai' | 'ollama' = 'openai'
+) {
   try {
-    const result = await loadDocuments(type, undefined, undefined, file, tag);
+    const result = await loadDocuments(type, undefined, undefined, file, tag, provider);
     console.log(result);
+    return result;
   } catch (error) {
     console.error('Error loading documents:', error);
+    throw error;
   }
 }
 
-//* URL Load Document Function.
-export async function handleUrlLoad(url: string, type: 'pdf' | 'url' | 'text', tag: string) {
+//* URL Load Document Function with provider
+export async function handleUrlLoad(
+  url: string, 
+  type: 'pdf' | 'url' | 'text', 
+  tag: string,
+  provider: 'openai' | 'ollama' = 'openai',
+  maxPages?: number
+) {
   try {
-    const result = await loadDocuments(type, url, undefined, undefined, tag);
+    const result = await loadDocuments(type, url, undefined, undefined, tag, provider, maxPages);
     console.log(result);
-    console.log(url)
+    return result;
   } catch (error) {
     console.error('Error loading documents:', error);
+    throw error;
   }
 }
 
-//* TEXT Load Document Function.
+//* TEXT Load Document Function with provider
 export async function handleTextLoad(
   text: string,
   type: 'pdf' | 'url' | 'text' | 'json',
-  tag?: string
+  tag?: string,
+  provider: 'openai' | 'ollama' = 'openai'
 ) {
   try {
-    const result = await loadDocuments(type, undefined, text, undefined, tag);
+    const result = await loadDocuments(type, undefined, text, undefined, tag, provider);
     console.log(result);
+    return result;
   } catch (error) {
     console.error('Error loading documents:', error);
+    throw error;
   }
 }
-//* Migrate Vectorstore
-export async function migrateVectorstore(): Promise<{
+
+//* Migrate Vectorstore with provider
+export async function migrateVectorstore(provider: 'openai' | 'ollama' = 'openai'): Promise<{
   message: string;
   count: number;
+  provider: string;
 }> {
-  const response = await axios.post(`${BACKEND_URL}/api/migrate-vectorstore`);
+  const response = await axios.post(`${BACKEND_URL}/api/migrate-vectorstore`, {
+    provider
+  });
   return response.data;
 }
 
-//* MIGRATE Vectorstore function.
-export async function handleMigration() {
+export async function handleMigration(provider: 'openai' | 'ollama' = 'openai') {
   try {
-    const result = await migrateVectorstore();
+    const result = await migrateVectorstore(provider);
     console.log(result);
   } catch (error) {
     console.error('Error migrating:', error);

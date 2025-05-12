@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { ChatRequestBody } from './interfaces.js';
 import { generateResponse } from './openai.js';
 import { getVectorStore } from './vectorStore.js';
+import { createLLMProvider } from './llmProviders.js'
 
 import { db } from '../utils/admin.js';
 
@@ -12,12 +13,15 @@ let lastQuestionType: string | null = null;
 export const Chat = async (req: Request, res: Response): Promise<void> => {
   try {
     
-    const { question } = req.body as ChatRequestBody;
+    const { question, provider ,modelName } = req.body as ChatRequestBody & { 
+      provider?: 'openai' | 'ollama',
+      modelName?: string 
+    };
+    
     const userId = req.headers['user-id'] as string || req.body.userId;
 
     console.log('Received userId:', userId, typeof userId);
-    console.log('Request body:', req.body);
-    console.log('Request headers:', req.headers['user-id']);
+    console.log('Using provider:', provider, 'with model:', modelName);
     
     let userName = req.body.userName || "användare";
     let income: number | null = null;
@@ -123,9 +127,12 @@ export const Chat = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    console.log('Skapar prompt och genererar svar...');
-    const formattedPrompt = await createPromptTemplate(context, question, userName,income);
-    const response = await generateResponse(formattedPrompt);
+
+
+    console.log('Skapar LLM provider och genererar svar...');
+    const llmProvider = createLLMProvider(provider, modelName);
+    const formattedPrompt = await createPromptTemplate(context, question, userName, income);
+    const response = await llmProvider.generateResponse(formattedPrompt);
     console.log('Svar genererat');
     
     res.json({ answer: response });

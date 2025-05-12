@@ -10,7 +10,7 @@ import {
 } from '../../utils/api';
 import { DeleteByTag } from './DeleteTags';
 import { useAuth } from '../../utils/AuthContext';
-import { db } from '../../utils/firebase'; // Adjust path as needed
+import { db } from '../../utils/firebase'; 
 import { doc, getDoc } from 'firebase/firestore';
 
 export default function RagComponent() {
@@ -24,6 +24,8 @@ export default function RagComponent() {
   const { signOut } = useAuth();
   const { user } = useAuth();
   const [userName, setUserName] = useState<string>("användare");
+  const [provider, setProvider] = useState<string>('');
+  const [modelName, setModelName] = useState<string>('gpt-4o');
 
 
   useEffect(() => {
@@ -50,12 +52,23 @@ export default function RagComponent() {
   
   const handleChatClick = async () => {
     try {
-      // Now you can use the userName state
       const result = await chat(chatQuestion, userName,user?.uid);
       setChatAnswer(result.answer);
     } catch (error) {
+      
       console.error('Error chatting:', error);
       setChatAnswer('Error chatting');
+    }
+  };
+
+  const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedProvider = e.target.value as 'openai' | 'ollama';
+    setProvider(selectedProvider);
+    
+    if (selectedProvider === 'openai') {
+      setModelName('gpt-4o');
+    } else if (selectedProvider === 'ollama') {
+      setModelName('mistral:latest');
     }
   };
 
@@ -137,7 +150,6 @@ export default function RagComponent() {
 
   return (
     <div>
-      {/* Logout button in the top right */}
       <div className="absolute top-4 right-4">
         <button
           onClick={handleLogout}
@@ -163,7 +175,32 @@ export default function RagComponent() {
       <h1 className="text-1xl font-bold text-center text-white-600 my-4">
         Retrieval-Augmented Generation
       </h1>
-
+      
+      <div className="p-6 space-y-4 max-w-lg mx-auto">
+        <div className="space-y-2">
+          <label className="block text-white font-semibold">Välj AI Modell:</label>
+          <select
+            value={provider}
+            onChange={handleProviderChange}
+            className="w-full border rounded-lg p-3 shadow-md focus:outline-none focus:ring focus:ring-blue-200 text-white"
+          >
+            <option value="openai">OpenAI</option>
+            <option value="ollama">Ollama (Lokal)</option>
+          </select>
+        </div>
+        
+        <div className="space-y-2">
+          <label className="block text-white font-semibold">Modell:</label>
+          <input
+            type="text"
+            value={modelName}
+            onChange={(e) => setModelName(e.target.value)}
+            placeholder={provider === 'openai' ? 'ex: gpt-4o' : 'ex: llama2'}
+            className="w-full border rounded-lg p-3 shadow-md focus:outline-none focus:ring focus:ring-blue-200"
+          />
+        </div>
+      </div>
+      
       <div className="p-6 space-y-6 max-w-lg mx-auto">
         <textarea
           className="w-full h-48 border rounded-lg p-4 shadow-md resize-none focus:outline-none focus:ring focus:ring-white-200"
@@ -186,14 +223,12 @@ export default function RagComponent() {
       </div>
       <div className="w-full border-b border-[#51D4A0] py-4"></div>
 
-      {/* ADMIN PANEL */}
-
-      {/* Migrate Vectorstore */}
+ 
       <div className="p-6 space-y-6 max-w-lg mx-auto">
         <h1 className="text-1xl font-extrabold text-center text-white-600 my-8">
           Admin Panel
         </h1>
-        {/* Tag input */}
+   
         <h4 className="text-center text-white-600 my-8">
           Ange META tagg för dina dokument
         </h4>
@@ -232,7 +267,7 @@ export default function RagComponent() {
           )}
         </div>
       </div>
-      {/* File Upload */}
+
       <div className="p-6 space-y-6 max-w-lg mx-auto">
         <input
           type="file"
@@ -247,7 +282,6 @@ export default function RagComponent() {
         </button>
       </div>
 
-      {/* URL Load */}
       <div className="p-6 space-y-6 max-w-lg mx-auto">
         <input
           className="w-full border rounded-lg p-4 shadow-md focus:outline-none focus:ring focus:ring-blue-200"
@@ -264,7 +298,6 @@ export default function RagComponent() {
         </button>
       </div>
 
-      {/* Text Load */}
       <div className="p-6 space-y-6 max-w-lg mx-auto">
         <textarea
           className="w-full h-48 border rounded-lg p-4 shadow-md resize-none focus:outline-none focus:ring focus:ring-blue-200"
