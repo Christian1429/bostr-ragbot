@@ -10,7 +10,7 @@ import {
 } from '../../utils/api';
 import { DeleteByTag } from './DeleteTags';
 import { useAuth } from '../../utils/AuthContext';
-import { db } from '../../utils/firebase'; 
+import { db } from '../../utils/firebase'; // Adjust path as needed
 import { doc, getDoc } from 'firebase/firestore';
 
 export default function RagComponent() {
@@ -24,7 +24,7 @@ export default function RagComponent() {
   const { signOut } = useAuth();
   const { user } = useAuth();
   const [userName, setUserName] = useState<string>("användare");
-  const [provider, setProvider] = useState<string>('');
+  const [provider, setProvider] = useState<'openai' | 'ollama'>('openai');
   const [modelName, setModelName] = useState<string>('gpt-4o');
 
 
@@ -52,7 +52,7 @@ export default function RagComponent() {
   
   const handleChatClick = async () => {
     try {
-      const result = await chat(chatQuestion, userName,user?.uid);
+      const result = await chat(chatQuestion, userName, user?.uid, provider, modelName);
       setChatAnswer(result.answer);
     } catch (error) {
       
@@ -122,7 +122,8 @@ export default function RagComponent() {
 
   const handleUrlLoadClick = async () => {
     try {
-      await handleUrlLoad(url, 'url', tag);
+      console.log(`Skrapar URL med provider: ${provider}`);
+      await handleUrlLoad(url, 'url', tag, provider);
       alert('URL loaded successfully!');
     } catch (error) {
       console.error('Error loading URL:', error);
@@ -132,7 +133,7 @@ export default function RagComponent() {
 
   const handleTextLoadClick = async () => {
     try {
-      await handleTextLoad(text, 'text', tag);
+      await handleTextLoad(text, 'text', tag, provider);
       alert('Text loaded successfully!');
     } catch (error) {
       console.error('Error loading text:', error);
