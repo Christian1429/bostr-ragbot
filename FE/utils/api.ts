@@ -44,8 +44,15 @@ export async function loadDocuments(
   file?: File,
   tag?: string,
   provider: 'openai' | 'ollama' = 'openai',
-  maxPages?: number
-): Promise<{ message: string; source: string }> {
+  maxPages?: number,
+  userId?: string  // Lägg till userId parameter
+): Promise<{
+  message: string; 
+  source: string; 
+  tag?: string;
+  provider?: string;
+  alreadyProcessed?: boolean; 
+}> {
   const formData = new FormData();
   formData.append('type', type);
   formData.append('provider', provider);
@@ -65,6 +72,11 @@ export async function loadDocuments(
   
   if (tag) {
     formData.append('tag', tag);
+  }
+  
+  // Skicka med användar-ID om det finns
+  if (userId) {
+    formData.append('userId', userId);
   }
   
   const response = await axios.post(
@@ -102,10 +114,11 @@ export async function handleFileUpload(
   file: File, 
   type: 'pdf' | 'url' | 'text' | 'json', 
   tag: string,
-  provider: 'openai' | 'ollama' = 'openai'
+  provider: 'openai' | 'ollama' = 'openai',
+  userId?: string  // Lägg till userId parameter
 ) {
   try {
-    const result = await loadDocuments(type, undefined, undefined, file, tag, provider);
+    const result = await loadDocuments(type, undefined, undefined, file, tag, provider, undefined, userId);
     console.log(result);
     return result;
   } catch (error) {
@@ -120,10 +133,18 @@ export async function handleUrlLoad(
   type: 'pdf' | 'url' | 'text', 
   tag: string,
   provider: 'openai' | 'ollama' = 'openai',
+  userId?: string,  // Flyttat upp userId för bättre läsbarhet
   maxPages?: number
-) {
+): Promise<{ 
+  message: string; 
+  source: string; 
+  tag?: string;
+  provider?: string;
+  alreadyProcessed?: boolean;
+}> {
   try {
-    const result = await loadDocuments(type, url, undefined, undefined, tag, provider, maxPages);
+    // Skicka userId till loadDocuments
+    const result = await loadDocuments(type, url, undefined, undefined, tag, provider, maxPages, userId);
     console.log(result);
     return result;
   } catch (error) {
@@ -137,10 +158,11 @@ export async function handleTextLoad(
   text: string,
   type: 'pdf' | 'url' | 'text' | 'json',
   tag?: string,
-  provider: 'openai' | 'ollama' = 'openai'
+  provider: 'openai' | 'ollama' = 'openai',
+  userId?: string  // Lägg till userId parameter
 ) {
   try {
-    const result = await loadDocuments(type, undefined, text, undefined, tag, provider);
+    const result = await loadDocuments(type, undefined, text, undefined, tag, provider, undefined, userId);
     console.log(result);
     return result;
   } catch (error) {

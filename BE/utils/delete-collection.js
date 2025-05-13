@@ -1,58 +1,59 @@
-// import admin from 'firebase-admin';
-// import serviceAccount from '../adminConfig.json' assert { type: 'json' }
+import admin from 'firebase-admin';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// //! USE TAG DELETE IF YOU DONT WANT TO REMOVE EVERYTHING, THIS DELETES THE WHOLE COLLECTION.
-// //! RUN THIS USING WITH NODE COMMAND NO BUTTON WILL BE ADDED FOR THIS IN CMS. 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const serviceAccount = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../adminConfig.json'), 'utf8'));
 
-// //! Deletes whole collection
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-// });
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+async function deleteCollection(collectionPath, batchSize) {
+  const db = admin.firestore();
+  const collectionRef = db.collection(collectionPath);
+  const query = collectionRef.orderBy('__name__').limit(batchSize);
 
-// async function deleteCollection(collectionPath, batchSize) {
-//   const db = admin.firestore();
-//   const collectionRef = db.collection(collectionPath);
-//   const query = collectionRef.orderBy('__name__').limit(batchSize);
+  return new Promise((resolve, reject) => {
+    deleteQueryBatch(db, query, batchSize, resolve, reject);
+  });
+}
 
-//   return new Promise((resolve, reject) => {
-//     deleteQueryBatch(db, query, batchSize, resolve, reject);
-//   });
-// }
+async function deleteQueryBatch(db, query, batchSize, resolve, reject) {
+  const snapshot = await query.get();
 
-// async function deleteQueryBatch(db, query, batchSize, resolve, reject) {
-//   const snapshot = await query.get();
+  if (snapshot.size === 0) {
+    resolve();
+    return;
+  }
 
-//   if (snapshot.size === 0) {
-//     resolve();
-//     return;
-//   }
+  // Delete documents in a batch
+  const batch = db.batch();
+  snapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
 
-//   // Delete documents in a batch
-//   const batch = db.batch();
-//   snapshot.docs.forEach((doc) => {
-//     batch.delete(doc.ref);
-//   });
+  try {
+    await batch.commit();
+  } catch (error) {
+    reject(error);
+  }
 
-//   try {
-//     await batch.commit();
-//   } catch (error) {
-//     reject(error);
-//   }
+  // Recurse on the next process tick, to avoid
+  // exploding the event loop.
+  process.nextTick(() => {
+    deleteQueryBatch(db, query, batchSize, resolve, reject);
+  });
+}
 
-//   // Recurse on the next process tick, to avoid
-//   // exploding the event loop.
-//   process.nextTick(() => {
-//     deleteQueryBatch(db, query, batchSize, resolve, reject);
-//   });
-// }
+const collectionName = 'openai_document_embeddings'; //! Change to current collection name
+const batchSize = 1;
 
-// const collectionName = 'openai_document_embeddings'; //! Change to current collection name
-// const batchSize = 1;
-
-// deleteCollection(collectionName, batchSize)
-//   .then(() => {
-//     console.log(`Successfully deleted collection: ${collectionName}`);
-//   })
-//   .catch((error) => {
-//     console.error('Error deleting collection:', error);
-//   });
+deleteCollection(collectionName, batchSize)
+  .then(() => {
+    console.log(`Successfully deleted collection: ${collectionName}`);
+  })
+  .catch((error) => {
+    console.error('Error deleting collection:', error);
+  });

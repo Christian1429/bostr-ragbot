@@ -15,6 +15,7 @@ export interface LoadDocumentsRequestBody {
   tag?: string;
   maxPages?:number;
   provider?: 'openai' | 'ollama';
+  userId?:string
 }
 
 export interface ChatRequestBody {

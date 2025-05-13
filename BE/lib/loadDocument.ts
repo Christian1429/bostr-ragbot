@@ -30,11 +30,16 @@ export const loadDocuments = async (req: Request, res: Response): Promise<void> 
     
     try {
         let documentContent: string | undefined = undefined;
-        const body = req.body as LoadDocumentsRequestBody & { provider?: 'openai' | 'ollama' };
+        const body = req.body as LoadDocumentsRequestBody & { 
+            provider?: 'openai' | 'ollama',
+            userId?: string 
+            
+        };
         const sourceType = body.type;
-        const provider = body.provider || 'openai'; // Default to OpenAI if not specified
+        const provider = body.provider || 'openai';
+        const userId = body.userId;
 
-        console.log(`Received load request. Type: ${sourceType}, Provider: ${provider}`); 
+        console.log(`Received load request. Type: ${sourceType}, Provider: ${provider}, User: ${userId || 'unknown'}`); 
 
         if (sourceType === 'pdf' && req.file) {
             console.log(`Processing PDF file: ${req.file.originalname}`);
@@ -53,12 +58,11 @@ export const loadDocuments = async (req: Request, res: Response): Promise<void> 
             
             console.log(`Processing URL (Puppeteer): ${body.url}`);
             
-            // Kontrollera om URL:en redan har skrapats
             const normalizedUrl = body.url.split('#')[0];
             const alreadyScraped = await hasUrlBeenScraped(normalizedUrl);
             
             if (alreadyScraped) {
-                console.log(`URL har redan skrapats tidigare: ${normalizedUrl}`);
+                console.log(`URL har redan skrapats tidigare (av någon användare): ${normalizedUrl}`);
                 res.json({
                     message: 'URL har redan skrapats tidigare och finns i databasen.',
                     source: normalizedUrl,
@@ -68,8 +72,7 @@ export const loadDocuments = async (req: Request, res: Response): Promise<void> 
                 });
                 return;
             }
-            
-            // Hämta maxPages från request body om det finns, annars använd default
+           
             const maxPagesToCrawl = body.maxPages || 5;
             
             try {
@@ -77,16 +80,17 @@ export const loadDocuments = async (req: Request, res: Response): Promise<void> 
                 
                 if (!documentContent || documentContent.trim().length === 0) {
                     console.warn(`Puppeteer crawl for ${body.url} resulted in empty content.`);
-                    await recordScrapedUrl(normalizedUrl, false);
+                    await recordScrapedUrl(normalizedUrl, false, undefined, userId);
                     res.status(404).json({ error: `Ingen text kunde extraheras från URL: ${body.url} och dess länkar.` });
                     return;
                 }
                 
-                await recordScrapedUrl(normalizedUrl, true, documentContent.length);
-                console.log(`Puppeteer crawl for ${body.url} finished. Content length: ${documentContent.length}`);
+                // Spara URL som skrapad med användar-ID
+                await recordScrapedUrl(normalizedUrl, true, documentContent.length, userId);
+                console.log(`Puppeteer crawl for ${body.url} finished. Content length: ${documentContent.length}, User: ${userId || 'unknown'}`);
             } catch (crawlError) {
                 console.error(`Error during Puppeteer crawl for ${body.url}:`, crawlError);
-                await recordScrapedUrl(normalizedUrl, false);
+                await recordScrapedUrl(normalizedUrl, false, undefined, userId);
                 res.status(500).json({ error: `Kunde inte crawla URL: ${(crawlError as Error).message}` });
                 return;
             }
@@ -103,18 +107,15 @@ export const loadDocuments = async (req: Request, res: Response): Promise<void> 
             return;
         }
 
-        // Kontrollera om documentContent faktiskt fick ett värde
         if (documentContent === undefined || documentContent === null) {
             console.error("Document content is undefined after processing input.");
             res.status(500).json({ error: 'Internt serverfel: kunde inte bearbeta indata.' });
             return;
         }
         
-        // Lägg bara till i vector store om vi har innehåll
         if (documentContent.trim().length > 0) {
             console.log(`Adding content to vector store. SourceType: ${sourceType}, Tag: ${body.tag || 'none'}, Provider: ${provider}`);
             
-            // Anropa addToVectorStore med provider parameter
             await addToVectorStore(
                 documentContent,
                 sourceType,

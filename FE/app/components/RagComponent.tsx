@@ -27,6 +27,9 @@ export default function RagComponent() {
   const [provider, setProvider] = useState<'openai' | 'ollama'>('openai');
   const [modelName, setModelName] = useState<string>('gpt-4o');
 
+  const [urlMessage, setUrlMessage] = useState('');
+const [urlStatus, setUrlStatus] = useState<'success' | 'warning' | 'error' | ''>('');
+
 
   useEffect(() => {
     async function fetchUserProfile() {
@@ -108,7 +111,7 @@ export default function RagComponent() {
         return;
       }
 
-      await handleFileUpload(file, fileType, tag);
+      await handleFileUpload(file, fileType, tag,provider, user?.uid);
       alert('File uploaded successfully!');
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -122,18 +125,31 @@ export default function RagComponent() {
 
   const handleUrlLoadClick = async () => {
     try {
+      setUrlMessage('');
+      setUrlStatus('');
+      
       console.log(`Skrapar URL med provider: ${provider}`);
-      await handleUrlLoad(url, 'url', tag, provider);
-      alert('URL loaded successfully!');
+      const result = await handleUrlLoad(url, 'url', tag, provider, user?.uid);
+      
+      if (result.alreadyProcessed) {
+        
+        setUrlMessage('Denna URL har redan skrapats och finns i databasen! Ingen ny data lades till.');
+        setUrlStatus('warning');
+      } else {
+        
+        setUrlMessage('URL skrapad och tillagd i databasen!');
+        setUrlStatus('success');
+      }
     } catch (error) {
       console.error('Error loading URL:', error);
-      alert('Error loading URL.');
+      setUrlMessage('Ett fel inträffade vid skrapning av URL.');
+      setUrlStatus('error');
     }
   };
 
   const handleTextLoadClick = async () => {
     try {
-      await handleTextLoad(text, 'text', tag, provider);
+      await handleTextLoad(text, 'text', tag, provider,user?.uid);
       alert('Text loaded successfully!');
     } catch (error) {
       console.error('Error loading text:', error);
@@ -159,7 +175,31 @@ export default function RagComponent() {
           Logga ut
         </button>
       </div>
-      
+      <div className="p-6 space-y-6 max-w-lg mx-auto">
+  <input
+    className="w-full border rounded-lg p-4 shadow-md focus:outline-none focus:ring focus:ring-blue-200"
+    type="text"
+    value={url}
+    onChange={(e) => setUrl(e.target.value)}
+    placeholder="Lägg in URL..."
+  />
+  <button
+    className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
+    onClick={handleUrlLoadClick}
+  >
+    Skrapa hemsida
+  </button>
+  
+  {urlMessage && (
+    <div className={`mt-4 p-4 rounded-md ${
+      urlStatus === 'success' ? 'bg-green-100 text-green-800' : 
+      urlStatus === 'warning' ? 'bg-yellow-100 text-yellow-800' : 
+      urlStatus === 'error' ? 'bg-red-100 text-red-800' : ''
+    }`}>
+      <p>{urlMessage}</p>
+    </div>
+  )}
+</div>
       <div
         style={{
           backgroundImage: 'var(--bostr-logo-url)',
@@ -171,6 +211,8 @@ export default function RagComponent() {
           marginTop: '20px',
         }}
       >
+
+
         <span className="sr-only">BOSTR Logo</span>
       </div>
       <h1 className="text-1xl font-bold text-center text-white-600 my-4">
