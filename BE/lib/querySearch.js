@@ -4,9 +4,10 @@ export async function searchDocumentsByTag(req, res) {
   try {
     const {
       tag,
+      //* CHANGE THE COLLECTION NAME TO YOUR OWN
       collection = 'openai_document_embeddings',
-      limit = 100, // Default limit for search results
-      page = 1, // Pagination support
+      limit = 100,
+      page = 1,
     } = req.body;
 
     if (!tag) {
@@ -30,13 +31,13 @@ export async function searchDocumentsByTag(req, res) {
     const results = snapshot.docs.map((doc) => ({
       id: doc.id,
       data: doc.data(),
-      metadata: doc.data().metadata, // Include metadata if available
+      metadata: doc.data().metadata,
     }));
 
     res.json({
       success: true,
       count: results.length,
-      total: snapshot.size, // Note: This is just the current batch count
+      total: snapshot.size,
       page,
       results,
     });

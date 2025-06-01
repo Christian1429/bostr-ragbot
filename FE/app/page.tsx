@@ -6,9 +6,12 @@ import {
   handleUrlLoad,
   handleTextLoad,
   handleMigration,
+  handleImageExtract,
+  handleSearchByTag,
   chat,
 } from '../utils/api';
 import { DeleteByTag } from './components/DeleteTags'
+import { SearchResultItem, SearchResponse } from '../interface/interface';
 
 function RagComponent() {
   const [chatQuestion, setChatQuestion] = useState('');
@@ -16,9 +19,13 @@ function RagComponent() {
   const [migrationResult, setMigrationResult] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageKeys, setImageKeys] = useState('');
   const [text, setText] = useState('');
   const [tag, setTag] = useState('');
-  
+  const [searchTag, setSearchTag] = useState('');
+  const [searchResult, setSearchResult] = useState<SearchResultItem[]>([]);
+
   const handleChatClick = async () => {
     try {
       const result = await chat(chatQuestion);
@@ -94,6 +101,32 @@ function RagComponent() {
     } catch (error) {
       console.error('Error loading text:', error);
       alert('Error loading text.');
+    }
+  };
+
+  const handleImageExtractClick = async () => {
+    try {
+      const keywords = await handleImageExtract(imageUrl);
+      setImageKeys(keywords);
+      alert('Image extracted successfully!');
+      console.log(keywords)
+    } catch (error) {
+      console.error('Error extracting image:', error);
+      alert('Error extracting image.');
+    }
+  };
+
+  const handleSearchClick = async () => {
+    try {
+      const results = await handleSearchByTag(searchTag);
+      setSearchResult(results);
+      console.log('Search completed!');
+      if (results.length === 0) {
+        alert('Inga dokument hittades med detta tagg.');
+      }
+    } catch (error) {
+      console.error('Error searching:', error);
+      alert('Error searching.');
     }
   };
 
@@ -216,6 +249,28 @@ function RagComponent() {
         </button>
       </div>
 
+      <div className="p-6 space-y-6 max-w-lg mx-auto">
+        <input
+          className="w-full border rounded-lg p-4 shadow-md focus:outline-none focus:ring focus:ring-blue-200"
+          type="text"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="Lägg in URL..."
+        />
+        <button
+          className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
+          onClick={handleImageExtractClick}
+        >
+          Extrahera nyckelord från bild
+        </button>
+
+        {imageKeys && (
+          <div className="mt-4 p-4 rounded-md bg-gray-100">
+            <p className="font-semibold text-black">Nyckelord från bilden:</p>
+            <p className="text-black">{imageKeys}</p>
+          </div>
+        )}
+      </div>
       {/* Text Load */}
       <div className="p-6 space-y-6 max-w-lg mx-auto">
         <textarea
@@ -233,6 +288,41 @@ function RagComponent() {
       </div>
       <div className="w-full border-b border-[#51D4A0] py-4"></div>
       <DeleteByTag />
+
+      <div className="p-6 space-y-6 max-w-lg mx-auto">
+        <textarea
+          className="w-full border rounded-lg p-4 shadow-md focus:outline-none focus:ring focus:ring-blue-200"
+          value={searchTag}
+          onChange={(e) => setSearchTag(e.target.value)}
+          placeholder="Skriv text..."
+        />
+        <button
+          className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
+          onClick={handleSearchClick}
+        >
+          Sök efter tagg
+        </button>
+        {searchResult.length > 0 && (
+          <div>
+            {searchResult.map((result) => (
+              <div key={result.id} style={{ marginBottom: 20 }}>
+                <p>
+                  <strong>ID:</strong> {result.id}
+                </p>
+                <p>
+                  <strong>Skapad:</strong> {result.data.created}
+                </p>
+                <p>
+                  <strong>Content:</strong> {result.data.content}
+                </p>
+                <p>
+                  <strong>Tags:</strong> {result.metadata.tags.join(', ')}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
