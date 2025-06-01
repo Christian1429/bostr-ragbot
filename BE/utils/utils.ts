@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { PDFExtract } from 'pdf.js-extract';
 import { PDFExtractResult } from '../lib/interfaces.js';
+import { openai } from '../lib/openai.js';
 
 const pdfExtract = new PDFExtract();
 
@@ -92,4 +93,44 @@ export function ExtractTextFromJson(
   }
 
   return texts.join('\n');
+}
+
+export async function extractImageKeywords(url: string): Promise<string> {
+  try {
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer',
+    });
+
+    const buffer = Buffer.from(response.data, 'binary');
+    const base64Image = buffer.toString('base64');
+
+    const result = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:image/jpeg;base64,${base64Image}`,
+              },
+            },
+            {
+              type: 'text',
+              //* Adjust the prompt as needed for more or less keywords, or any other specific
+              text: '.Ta ut och returnera en kort lista på 5–10 nyckelord som beskriver huset och tomten bilden. Returnera endast nyckelorden, kommaseparerade. undvik att nämna bil och generella saker som himmel eller liknande.',
+            },
+          ],
+        },
+      ],
+      max_tokens: 100,
+    });
+
+    const keywords = result.choices?.[0]?.message?.content?.trim() || '';
+    return keywords;
+  } catch (error) {
+    console.error('Failed to extract keywords from image:', error);
+    throw new Error('Could not process image for keyword extraction.');
+  }
 }

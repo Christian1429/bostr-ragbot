@@ -2,7 +2,7 @@ import { OpenAI } from 'openai';
 import { OpenAIEmbeddings } from '@langchain/openai';
 
 // Initialize OpenAI
-const openai = new OpenAI({
+export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 

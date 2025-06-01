@@ -19,9 +19,7 @@ export const DeleteByTag = () => {
 
     try {
       const result = await deleteDocumentsByTag({
-        tag,
-        // collection: 'optional_collection_name',
-        // batchSize: 50
+        tag
       });
       setMessage(result.message);
     } catch (err) {

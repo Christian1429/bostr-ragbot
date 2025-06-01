@@ -36,5 +36,9 @@ export interface ExtractTextOptions {
   keysToExtract?: string[];
 }
 
+// export interface ExtractPhotoKeys {
+//   keysToExtract?: string[];
+// }
+
 export type SourceType = 'url' | 'pdf' | 'text' | 'json';
 

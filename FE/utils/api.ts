@@ -134,3 +134,29 @@ export async function handleMigration() {
     console.error('Error migrating:', error);
   }
 }
+
+//* Extract image keywords
+export async function handleImageExtract(url: string): Promise<string> {
+  try {
+    const response = await axios.post(`${BACKEND_URL}/api/extract-image`, {
+      url,
+    });
+    return response.data.keywords;
+  } catch (error) {
+    console.error('Error extracting image:', error);
+    throw new Error('Failed to extract image keywords.');
+  }
+}
+
+export async function handleSearchByTag(tag: string): Promise<any[]> {
+  try {
+    const response = await axios.post(`${BACKEND_URL}/api/search`, { tag });
+    console.log('Search response:', response.data);
+
+    const results = response.data.results;
+    return results; // Return full array, not just one tag
+  } catch (error) {
+    console.error('Error searching:', error);
+    throw new Error('Failed to search for tag.');
+  }
+}
