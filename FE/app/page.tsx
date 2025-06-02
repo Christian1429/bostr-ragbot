@@ -1,17 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
+import { DeleteByTag } from './components/DeleteTags';
+import { SearchResultItem } from '../interface/interface';
 import {
-  handleFileUpload,
-  handleUrlLoad,
-  handleTextLoad,
-  handleMigration,
-  handleImageExtract,
-  handleSearchByTag,
-  chat,
-} from '../utils/api';
-import { DeleteByTag } from './components/DeleteTags'
-import { SearchResultItem, SearchResponse } from '../interface/interface';
+  handleChatClick,
+  handleFileUploadClick,
+  handleUrlLoadClick,
+  handleSearchClick,
+  handleMigrationClick,
+  handleTextLoadClick,
+  handleImageExtractClick,
+  handleFileChange,
+} from '../utils/handlers';
 
 function RagComponent() {
   const [chatQuestion, setChatQuestion] = useState('');
@@ -25,110 +26,6 @@ function RagComponent() {
   const [tag, setTag] = useState('');
   const [searchTag, setSearchTag] = useState('');
   const [searchResult, setSearchResult] = useState<SearchResultItem[]>([]);
-
-  const handleChatClick = async () => {
-    try {
-      const result = await chat(chatQuestion);
-      setChatAnswer(result.answer);
-    } catch (error) {
-      console.error('Error chatting:', error);
-      setChatAnswer('Error chatting');
-    }
-  };
-
-  const handleMigrationClick = async () => {
-    try {
-      const result = await handleMigration();
-      setMigrationResult(JSON.stringify(result));
-    } catch (error) {
-      console.error('Error migrating:', error);
-      setMigrationResult('Error migrating');
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleFileUploadClick = async () => {
-    if (!file) {
-      alert('Välj en fil innan du försöker ladda upp!');
-      return;
-    }
-    try {
-      let fileType: 'pdf' | 'json';
-
-      if (file.type === 'application/pdf') {
-        fileType = 'pdf';
-      } else if (
-        file.type === 'application/json' ||
-        file.name.endsWith('.json')
-      ) {
-        fileType = 'json';
-      } else {
-        alert('Only PDF and JSON files are allowed');
-        return;
-      }
-
-      await handleFileUpload(file, fileType, tag);
-      alert('File uploaded successfully!');
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      alert(
-        `Error uploading file: ${
-          error instanceof Error ? error.message : 'Unknown error'
-        }`
-      );
-    }
-  };
-
-  const handleUrlLoadClick = async () => {
-    try {
-      await handleUrlLoad(url, 'url', tag);
-      alert('URL loaded successfully!');
-    } catch (error) {
-      console.error('Error loading URL:', error);
-      alert('Error loading URL.');
-    }
-  };
-
-  const handleTextLoadClick = async () => {
-    try {
-      await handleTextLoad(text, 'text', tag);
-      alert('Text loaded successfully!');
-    } catch (error) {
-      console.error('Error loading text:', error);
-      alert('Error loading text.');
-    }
-  };
-
-  const handleImageExtractClick = async () => {
-    try {
-      const keywords = await handleImageExtract(imageUrl);
-      setImageKeys(keywords);
-      alert('Image extracted successfully!');
-      console.log(keywords)
-    } catch (error) {
-      console.error('Error extracting image:', error);
-      alert('Error extracting image.');
-    }
-  };
-
-  const handleSearchClick = async () => {
-    try {
-      const results = await handleSearchByTag(searchTag);
-      setSearchResult(results);
-      console.log('Search completed!');
-      if (results.length === 0) {
-        alert('Inga dokument hittades med detta tagg.');
-      }
-    } catch (error) {
-      console.error('Error searching:', error);
-      alert('Error searching.');
-    }
-  };
 
   return (
     <div>
@@ -158,7 +55,7 @@ function RagComponent() {
         />
         <button
           className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
-          onClick={handleChatClick}
+          onClick={() => handleChatClick(chatQuestion, setChatAnswer)}
         >
           Skicka
         </button>
@@ -205,7 +102,7 @@ function RagComponent() {
         <div className="space-y-4">
           <button
             className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
-            onClick={handleMigrationClick}
+            onClick={() => handleMigrationClick(setMigrationResult)}
           >
             Migrera Vectorstore
           </button>
@@ -221,12 +118,12 @@ function RagComponent() {
       <div className="p-6 space-y-6 max-w-lg mx-auto">
         <input
           type="file"
-          onChange={handleFileChange}
+          onChange={(e) => handleFileChange(e, setFile)}
           className="block w-full text-sm text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#4C2040] hover:file:bg-blue-100 border border-white-300 rounded-lg shadow-md p-3"
         />
         <button
           className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
-          onClick={handleFileUploadClick}
+          onClick={() => handleFileUploadClick(file, tag)}
         >
           Ladda upp fil
         </button>
@@ -243,7 +140,7 @@ function RagComponent() {
         />
         <button
           className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
-          onClick={handleUrlLoadClick}
+          onClick={() => handleUrlLoadClick(url, tag)}
         >
           Skrapa hemsida
         </button>
@@ -259,7 +156,7 @@ function RagComponent() {
         />
         <button
           className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
-          onClick={handleImageExtractClick}
+          onClick={() => handleImageExtractClick(imageUrl, setImageKeys)}
         >
           Extrahera nyckelord från bild
         </button>
@@ -281,7 +178,7 @@ function RagComponent() {
         />
         <button
           className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
-          onClick={handleTextLoadClick}
+          onClick={() => handleTextLoadClick(text, tag)}
         >
           Skicka text
         </button>
@@ -298,7 +195,7 @@ function RagComponent() {
         />
         <button
           className="bg-[#4C2040] hover:text-[#4C2040] hover:bg-white border-white text-white font-semibold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out focus:outline-none border border-white-300 rounded-lg shadow-md p-3"
-          onClick={handleSearchClick}
+          onClick={() => handleSearchClick(setSearchResult, searchTag)}
         >
           Sök efter tagg
         </button>
