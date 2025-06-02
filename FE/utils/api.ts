@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { DeleteDocumentsParams, DeleteResponse, ApiError } from '../interface/interface';
-
+import {log} from './log';
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 //* Delete Documents By Tags
@@ -17,12 +17,9 @@ export const deleteDocumentsByTag = async ({
         timeout: 10000, // 10 second timeout
         headers: {
           'Content-Type': 'application/json',
-          // Add auth headers if needed
-          // 'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
       }
     );
-
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -83,7 +80,7 @@ export async function chat(question: string): Promise<{ answer: string }> {
 }
 
 //* FILE Load Document Function.
-export async function handleFileUpload(file: File, type: 'pdf' | 'url' | 'text' | 'json', tag: string) {
+export async function loadDocumentByType(file: File, type: 'pdf' | 'url' | 'text' | 'json', tag: string) {
   try {
     const result = await loadDocuments(type, undefined, undefined, file, tag);
     console.log(result);
@@ -151,10 +148,10 @@ export async function handleImageExtract(url: string): Promise<string> {
 export async function handleSearchByTag(tag: string): Promise<any[]> {
   try {
     const response = await axios.post(`${BACKEND_URL}/api/search`, { tag });
-    console.log('Search response:', response.data);
+    log('Search response:', response.data);
 
     const results = response.data.results;
-    return results; // Return full array, not just one tag
+    return results;
   } catch (error) {
     console.error('Error searching:', error);
     throw new Error('Failed to search for tag.');
